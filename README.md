@@ -135,6 +135,59 @@ Le code de démarrage utilise Flask. Prenez ce que vous voulez.
 
 **Flask** : rien de plus à installer. [Démarrage rapide](https://flask.palletsprojects.com/en/stable/quickstart/).
 
+Exemple pour démarrer, qui lit et ajoute dans la base. Remplacez le contenu de `app.py` :
+
+```python
+from flask import Flask, redirect, render_template, request
+
+from db import DEFAULT_DB, get_connection, init_db
+
+
+def create_app(db_path=DEFAULT_DB):
+    app = Flask(__name__)
+    init_db(db_path)
+
+    @app.get("/")
+    def index():
+        with get_connection(db_path) as conn:
+            lignes = conn.execute("SELECT nom FROM membres").fetchall()
+        return render_template("index.html", lignes=lignes)
+
+    @app.post("/ajouter")
+    def ajouter():
+        with get_connection(db_path) as conn:
+            conn.execute(
+                "INSERT INTO membres (groupe_id, nom) VALUES (1, ?)",
+                (request.form["nom"],),
+            )
+        return redirect("/")
+
+    return app
+
+
+if __name__ == "__main__":
+    create_app().run(debug=True)
+```
+
+Et celui de `templates/index.html` :
+
+```html
+<!doctype html>
+<html lang="fr">
+<head><meta charset="utf-8"><title>Membres du groupe</title></head>
+<body>
+  <h1>Membres du groupe</h1>
+  <form method="post" action="/ajouter">
+    <input name="nom" placeholder="Nouveau membre" required>
+    <button>Ajouter</button>
+  </form>
+  <ul>
+    {% for ligne in lignes %}<li>{{ ligne["nom"] }}</li>{% endfor %}
+  </ul>
+</body>
+</html>
+```
+
 **FastAPI** : [premiers pas](https://fastapi.tiangolo.com/tutorial/first-steps/).
 
 ```bash
@@ -169,7 +222,7 @@ fastapi dev app.py
 pip install streamlit
 ```
 
-Remplacez le contenu de `app.py` par :
+Exemple pour démarrer, qui lit et ajoute dans la base. Remplacez le contenu de `app.py` par :
 
 ```python
 import streamlit as st
@@ -177,7 +230,18 @@ import streamlit as st
 from db import get_connection, init_db
 
 init_db()
-st.title("Mon application")
+st.title("Membres du groupe")
+
+nom = st.text_input("Nouveau membre")
+if st.button("Ajouter") and nom:
+    with get_connection() as conn:
+        conn.execute(
+            "INSERT INTO membres (groupe_id, nom) VALUES (1, ?)", (nom,)
+        )
+
+with get_connection() as conn:
+    lignes = conn.execute("SELECT nom FROM membres").fetchall()
+st.table([dict(ligne) for ligne in lignes])
 ```
 
 Puis lancez :
