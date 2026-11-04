@@ -52,7 +52,7 @@ Modifier une dépense, filtrer les dépenses par membre ou par période, exporte
 
 ## Ce qui est libre
 
-Le framework (Flask, FastAPI ou Streamlit), l’organisation du code, le schéma de la base et l’interface. Python, SQLite et pytest sont imposés.
+Le framework (Flask, FastAPI ou Streamlit), l’organisation du code et l’interface. La base SQLite est fournie avec des exemples, et vous pouvez la modifier. Python, SQLite et pytest sont imposés.
 
 ## À la fin de la séance
 
@@ -103,6 +103,31 @@ python app.py
 ```
 
 Ouvrez ensuite <http://127.0.0.1:5000>. Dans le terminal, Ctrl+C arrête l’application.
+
+## La base de données
+
+La base est fournie : tables dans `schema.sql`, exemples dans `seed.sql`. Elle est créée dans `data.db` au premier lancement de l'application. Un groupe, trois membres et une dépense de 30 € : les soldes attendus sont Alice +20,00 ; Bob −10,00 ; Chloé −10,00. Les tests utilisent une base vide.
+
+Vous pouvez modifier le schéma. Après un changement, ou pour repartir de zéro, supprimez `data.db`.
+
+Trois commandes pour commencer :
+
+```python
+from db import get_connection, init_db
+
+init_db()
+with get_connection() as conn:
+    # Lire
+    lignes = conn.execute("SELECT nom FROM membres WHERE groupe_id = ?", (1,)).fetchall()
+    print([dict(ligne) for ligne in lignes])
+
+    # Ajouter : toujours des ? pour les valeurs
+    conn.execute("INSERT INTO membres (groupe_id, nom) VALUES (?, ?)", (1, "David"))
+
+    # Joindre : les dépenses avec le nom du payeur
+    lignes = conn.execute("SELECT d.libelle, d.montant_centimes, m.nom FROM depenses d JOIN membres m ON d.payeur_id = m.id").fetchall()
+    print([dict(ligne) for ligne in lignes])
+```
 
 ## Flask, FastAPI ou Streamlit
 
