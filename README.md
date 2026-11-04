@@ -76,183 +76,42 @@ Python 3.11 ou plus est nécessaire.
 git clone <adresse-de-votre-dépôt>
 ```
 
-## Installer
+## Choisir votre dossier
 
-macOS ou Linux :
+- `code-streamlit` : le plus simple. [Premiers pas](https://docs.streamlit.io/get-started).
+- `code-flask` : plus de contrôle. [Démarrage rapide](https://flask.palletsprojects.com/en/stable/quickstart/).
+
+Gardez un dossier et supprimez l'autre. Chacun contient un `app.py` qui lit la base et l'affiche. FastAPI est possible aussi : [premiers pas](https://fastapi.tiangolo.com/tutorial/first-steps/).
+
+## Installer et lancer
+
+macOS ou Linux, dans votre dossier :
 
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
+pytest
 ```
 
-Windows (PowerShell) :
+Windows (PowerShell), dans votre dossier :
 
 ```powershell
 py -m venv .venv
 Set-ExecutionPolicy -Scope Process RemoteSigned
 .venv\Scripts\Activate.ps1
 pip install -r requirements.txt
-```
-
-## Vérifier que tout fonctionne
-
-```bash
 pytest
-python app.py
 ```
 
-Ouvrez ensuite <http://127.0.0.1:5000>. Dans le terminal, Ctrl+C arrête l’application.
+Puis lancez l'application :
 
-## La base de données
+- Flask : `python app.py`, puis <http://127.0.0.1:5000>
+- Streamlit : `streamlit run app.py`
 
-La base est fournie : tables dans `schema.sql`, exemples dans `seed.sql`. Elle est créée dans `data.db` au premier lancement de l'application. Un groupe, trois membres et une dépense de 30 € : les soldes attendus sont Alice +20,00 ; Bob −10,00 ; Chloé −10,00. Les tests utilisent une base vide.
+## La base
 
-Vous pouvez modifier le schéma. Après un changement, ou pour repartir de zéro, supprimez `data.db`.
-
-Trois commandes pour commencer :
-
-```python
-from db import get_connection, init_db
-
-init_db()
-with get_connection() as conn:
-    # Lire
-    lignes = conn.execute("SELECT nom FROM membres WHERE groupe_id = ?", (1,)).fetchall()
-    print([dict(ligne) for ligne in lignes])
-
-    # Ajouter : toujours des ? pour les valeurs
-    conn.execute("INSERT INTO membres (groupe_id, nom) VALUES (?, ?)", (1, "David"))
-
-    # Joindre : les dépenses avec le nom du payeur
-    lignes = conn.execute("SELECT d.libelle, d.montant_centimes, m.nom FROM depenses d JOIN membres m ON d.payeur_id = m.id").fetchall()
-    print([dict(ligne) for ligne in lignes])
-```
-
-## Flask, FastAPI ou Streamlit
-
-Le code de démarrage utilise Flask. Prenez ce que vous voulez.
-
-**Flask** : rien de plus à installer. [Démarrage rapide](https://flask.palletsprojects.com/en/stable/quickstart/).
-
-Exemple pour démarrer, qui lit et ajoute dans la base. Remplacez le contenu de `app.py` :
-
-```python
-from flask import Flask, redirect, render_template, request
-
-from db import DEFAULT_DB, get_connection, init_db
-
-
-def create_app(db_path=DEFAULT_DB):
-    app = Flask(__name__)
-    init_db(db_path)
-
-    @app.get("/")
-    def index():
-        with get_connection(db_path) as conn:
-            lignes = conn.execute("SELECT nom FROM membres").fetchall()
-        return render_template("index.html", lignes=lignes)
-
-    @app.post("/ajouter")
-    def ajouter():
-        with get_connection(db_path) as conn:
-            conn.execute(
-                "INSERT INTO membres (groupe_id, nom) VALUES (1, ?)",
-                (request.form["nom"],),
-            )
-        return redirect("/")
-
-    return app
-
-
-if __name__ == "__main__":
-    create_app().run(debug=True)
-```
-
-Et celui de `templates/index.html` :
-
-```html
-<!doctype html>
-<html lang="fr">
-<head><meta charset="utf-8"><title>Membres du groupe</title></head>
-<body>
-  <h1>Membres du groupe</h1>
-  <form method="post" action="/ajouter">
-    <input name="nom" placeholder="Nouveau membre" required>
-    <button>Ajouter</button>
-  </form>
-  <ul>
-    {% for ligne in lignes %}<li>{{ ligne["nom"] }}</li>{% endfor %}
-  </ul>
-</body>
-</html>
-```
-
-**FastAPI** : [premiers pas](https://fastapi.tiangolo.com/tutorial/first-steps/).
-
-```bash
-pip install "fastapi[standard]"
-```
-
-Remplacez le contenu de `app.py` par :
-
-```python
-from fastapi import FastAPI
-
-from db import get_connection, init_db
-
-init_db()
-app = FastAPI()
-
-
-@app.get("/")
-def accueil():
-    return {"message": "Mon application"}
-```
-
-Puis lancez :
-
-```bash
-fastapi dev app.py
-```
-
-**Streamlit** : le plus simple pour une interface. [Premiers pas](https://docs.streamlit.io/get-started) · [Documentation](https://docs.streamlit.io).
-
-```bash
-pip install streamlit
-```
-
-Exemple pour démarrer, qui lit et ajoute dans la base. Remplacez le contenu de `app.py` par :
-
-```python
-import streamlit as st
-
-from db import get_connection, init_db
-
-init_db()
-st.title("Membres du groupe")
-
-nom = st.text_input("Nouveau membre")
-if st.button("Ajouter") and nom:
-    with get_connection() as conn:
-        conn.execute(
-            "INSERT INTO membres (groupe_id, nom) VALUES (1, ?)", (nom,)
-        )
-
-with get_connection() as conn:
-    lignes = conn.execute("SELECT nom FROM membres").fetchall()
-st.table([dict(ligne) for ligne in lignes])
-```
-
-Puis lancez :
-
-```bash
-streamlit run app.py
-```
-
-Si vous quittez Flask, ajoutez votre framework à `requirements.txt`, supprimez `tests/test_demarrage.py`, qui teste la page Flask, ainsi que `templates/` si vous ne l’utilisez plus, et testez vos règles dans vos propres fichiers de `tests/`.
-
-SQLite : [documentation du module `sqlite3`](https://docs.python.org/3/library/sqlite3.html).
+`base.sql` contient les tables et des exemples. `data.db` se crée au premier lancement. Pour repartir de zéro, ou après un changement de `base.sql`, supprimez `data.db`. [Documentation de `sqlite3`](https://docs.python.org/3/library/sqlite3.html).
 
 ## Travailler à deux
 
