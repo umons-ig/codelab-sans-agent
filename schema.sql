@@ -1,0 +1,2 @@
+-- Schéma de la base : Partage de frais.
+-- Écrivez ici vos CREATE TABLE IF NOT EXISTS.
