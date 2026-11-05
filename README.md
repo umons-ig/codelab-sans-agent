@@ -4,7 +4,7 @@
 
 Séance 1 · En binôme · Comme vous le faites d’habitude, avec ou sans IA, ChatGPT compris.
 
-[Démarrer](#démarrer) · [Cahier des charges en PDF](CAHIER_DES_CHARGES.pdf)
+[Démarrer](#démarrer)
 
 ## Le contexte
 
@@ -52,7 +52,7 @@ Modifier une dépense, filtrer les dépenses par membre ou par période, exporte
 
 ## Ce qui est libre
 
-Le framework (Flask, FastAPI ou Streamlit), l’organisation du code et l’interface. La base SQLite est fournie avec des exemples, et vous pouvez la modifier. Python, SQLite et pytest sont imposés.
+Le framework (Flask ou Streamlit), l’organisation du code et l’interface. La base SQLite est fournie avec des exemples, et vous pouvez la modifier. Python, SQLite et pytest sont imposés.
 
 ## À la fin de la séance
 
@@ -80,7 +80,7 @@ git clone <adresse-de-votre-dépôt>
 - `code-streamlit` : le plus simple. [Premiers pas](https://docs.streamlit.io/get-started).
 - `code-flask` : plus de contrôle. [Démarrage rapide](https://flask.palletsprojects.com/en/stable/quickstart/).
 
-Gardez un dossier et supprimez l'autre. Chacun contient un `app.py` qui lit la base et l'affiche. FastAPI est possible aussi : [premiers pas](https://fastapi.tiangolo.com/tutorial/first-steps/).
+Gardez un dossier et supprimez l'autre. Chacun contient un `app.py` qui lit la base et l'affiche.
 
 ## Installer et lancer
 
