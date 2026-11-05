@@ -19,8 +19,12 @@ def connexion():
 
 
 st.title("Partage de frais")
-st.header("Membres")
 
 with connexion() as conn:
+    tables = conn.execute("SELECT name FROM sqlite_master WHERE type = 'table'").fetchall()
     lignes = conn.execute("SELECT nom FROM membres").fetchall()
+
+st.header("Tables de la base")
+st.table([dict(table) for table in tables])
+st.header("Membres")
 st.table([dict(ligne) for ligne in lignes])

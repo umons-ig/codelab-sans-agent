@@ -8,7 +8,7 @@ Séance 1 · En binôme · Comme vous le faites d’habitude, avec ou sans IA, C
 
 ## Le contexte
 
-Un groupe d’amis part une semaine en vacances. Chacun paie des choses pour les autres : les courses pour tout le monde, l’essence pour ceux qui sont dans la voiture, une activité pour une partie du groupe. Les tickets s’accumulent, certains ont déjà remboursé une partie, et à la fin plus personne ne sait qui doit combien à qui.
+Un groupe d’amis part une semaine en vacances. Chacun paie des choses pour les autres : les courses pour tout le monde, l’essence pour ceux qui sont dans la voiture, une activité pour une partie du groupe. Les tickets s’accumulent, et à la fin plus personne ne sait qui doit combien à qui.
 
 ## Les données
 
@@ -16,14 +16,12 @@ Un groupe d’amis part une semaine en vacances. Chacun paie des choses pour les
 |---|---|
 | **Groupe** | nom, dates du séjour, membres |
 | **Dépense** | libellé, montant, date, payeur, participants |
-| **Remboursement** | montant, de qui, à qui |
 
 ## Ce que l’application doit faire
 
 - [ ] Créer un groupe et ses membres
 - [ ] Ajouter ou supprimer une dépense
 - [ ] Afficher le solde de chaque membre
-- [ ] Enregistrer un remboursement entre deux membres
 
 ## Les règles
 
@@ -32,7 +30,6 @@ Un groupe d’amis part une semaine en vacances. Chacun paie des choses pour les
 - La date d’une dépense est comprise dans le séjour, dates de début et de fin incluses.
 - Une dépense est partagée à parts égales entre ses participants. Le centime restant va au premier participant ajouté.
 - Les soldes sont exacts au centime près et leur somme vaut toujours 0.
-- Un remboursement a un montant positif, entre deux membres différents.
 
 ## Pour vérifier
 
@@ -41,7 +38,6 @@ Groupe : Alice, Bob et Chloé. Les lignes s’enchaînent.
 | Action | Résultat attendu |
 |---|---|
 | Alice paie 30 € pour Alice, Bob et Chloé | Alice +20,00 ; Bob −10,00 ; Chloé −10,00 |
-| Bob rembourse 10 € à Alice | Alice +10,00 ; Bob 0,00 ; Chloé −10,00 |
 | Une dépense datée hors du séjour | Refusée, soldes inchangés |
 | Une dépense de 0 € | Refusée, soldes inchangés |
 | Sur un nouveau groupe, Alice paie 10 € pour les trois | Alice +6,66 ; Bob −3,33 ; Chloé −3,33 |
@@ -126,6 +122,15 @@ Puis lancez l'application :
 ## La base
 
 `base.sql` contient les tables et des exemples. `data.db` se crée au premier lancement. Pour repartir de zéro, ou après un changement de `base.sql`, supprimez `data.db`. [Documentation de `sqlite3`](https://docs.python.org/3/library/sqlite3.html).
+
+| Table | Colonnes |
+|---|---|
+| `groupes` | `id`, `nom`, `date_debut`, `date_fin` |
+| `membres` | `id`, `groupe_id`, `nom` |
+| `depenses` | `id`, `groupe_id`, `libelle`, `montant_centimes`, `date`, `payeur_id` |
+| `participants` | `depense_id`, `membre_id` |
+
+Les montants sont en centimes : 3000 = 30,00 €. Les dates sont au format `2026-07-02`. `participants` relie une dépense aux membres qui la partagent.
 
 ## Travailler à deux
 
