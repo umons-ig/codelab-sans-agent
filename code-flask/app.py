@@ -1,33 +1,18 @@
-import sqlite3
-from pathlib import Path
-
 from flask import Flask, redirect, render_template_string, request
 
-RACINE = Path(__file__).parent.parent
-BASE = RACINE / "data.db"
+from base import ouvrir_base
 
-
-def ouvrir_base():
-    """Ouvre la base et la crée au premier lancement. Inutile de modifier cette fonction."""
-    neuve = not BASE.exists()
-    conn = sqlite3.connect(BASE)
-    conn.row_factory = sqlite3.Row
-    conn.execute("PRAGMA foreign_keys = ON")
-    if neuve:
-        conn.executescript((RACINE / "base.sql").read_text(encoding="utf-8"))
-    return conn
-
-
+# Le HTML de la page.
 PAGE = """
 <h1>Partage de frais</h1>
-<h2>Tables de la base</h2>
-<ul>
-  {% for table in tables %}<li>{{ table["name"] }}</li>{% endfor %}
-</ul>
+
 <h2>Membres</h2>
 <ul>
-  {% for membre in membres %}<li>{{ membre["nom"] }}</li>{% endfor %}
+  {% for membre in membres %}
+    <li>{{ membre["nom"] }}</li>
+  {% endfor %}
 </ul>
+
 <form method="post" action="/membres">
   <input name="nom" placeholder="Nom" required>
   <button>Ajouter</button>
@@ -37,20 +22,20 @@ PAGE = """
 app = Flask(__name__)
 
 
+# Page d'accueil : lit les membres et affiche PAGE.
 @app.get("/")
 def accueil():
     with ouvrir_base() as conn:
-        tables = conn.execute("SELECT name FROM sqlite_master WHERE type = 'table'").fetchall()
         membres = conn.execute("SELECT nom FROM membres").fetchall()
-    return render_template_string(PAGE, tables=tables, membres=membres)
+    return render_template_string(PAGE, membres=membres)
 
 
-# Exemple : reçoit le formulaire de PAGE et ajoute un membre au groupe 1.
+# Exemple : reçoit le formulaire et ajoute un membre au groupe 1.
 @app.post("/membres")
 def ajouter_membre():
     nom = request.form["nom"]
     with ouvrir_base() as conn:
-        conn.execute("INSERT INTO membres (groupe_id, nom) VALUES (1, ?)", (nom,))
+        conn.execute("INSERT INTO membres (groupe_id, nom) VALUES (1, ?)", [nom])
     return redirect("/")
 
 
