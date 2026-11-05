@@ -65,6 +65,17 @@ Le framework (Flask ou Streamlit), l’organisation du code et l’interface. La
 
 Python 3.11 ou plus est nécessaire.
 
+## Préparer Git
+
+Une seule fois par PC :
+
+```bash
+git config --global user.name "Votre nom"
+git config --global user.email "votre@adresse.be"
+```
+
+GitHub n'accepte pas votre mot de passe dans le terminal. Si `git clone` refuse la connexion, installez [GitHub CLI](https://cli.github.com) et lancez `gh auth login`.
+
 ## Créer votre dépôt
 
 1. Un membre du binôme ouvre <https://github.com/umons-ig/codelab-sans-agent>, clique sur **Use this template**, puis **Create a new repository**, et choisit **Private**.
