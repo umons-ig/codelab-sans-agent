@@ -114,7 +114,11 @@ Puis lancez l'application :
 
 ## Travailler à deux
 
-Une seule personne a le clavier à la fois. `git push` avant de passer le clavier, `git pull` en le prenant :
+Chacun travaille sur son PC. `git pull` avant de travailler, `git push` après chaque commit :
+
+```bash
+git pull
+```
 
 ```bash
 git add -A
@@ -122,6 +126,11 @@ git commit -m "ajout de la fonctionnalité"
 git push
 ```
 
+Si `git push` est refusé, votre partenaire a poussé entre-temps. Récupérez son travail, puis poussez à nouveau :
+
 ```bash
-git pull
+git pull --no-rebase --no-edit
+git push
 ```
+
+En cas de conflit, corrigez les fichiers indiqués, puis faites `git add -A`, `git commit -m "fusion"` et `git push`.
