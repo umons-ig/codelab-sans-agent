@@ -26,7 +26,7 @@ PAGE = """
 </ul>
 <h2>Membres</h2>
 <ul>
-  {% for ligne in lignes %}<li>{{ ligne["nom"] }}</li>{% endfor %}
+  {% for membre in membres %}<li>{{ membre["nom"] }}</li>{% endfor %}
 </ul>
 <form method="post" action="/membres">
   <input name="nom" placeholder="Nom" required>
@@ -41,8 +41,8 @@ app = Flask(__name__)
 def accueil():
     with ouvrir_base() as conn:
         tables = conn.execute("SELECT name FROM sqlite_master WHERE type = 'table'").fetchall()
-        lignes = conn.execute("SELECT nom FROM membres").fetchall()
-    return render_template_string(PAGE, tables=tables, lignes=lignes)
+        membres = conn.execute("SELECT nom FROM membres").fetchall()
+    return render_template_string(PAGE, tables=tables, membres=membres)
 
 
 # Exemple : reçoit le formulaire de PAGE et ajoute un membre au groupe 1.

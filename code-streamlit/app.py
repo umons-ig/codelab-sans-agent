@@ -22,12 +22,12 @@ st.title("Partage de frais")
 
 with ouvrir_base() as conn:
     tables = conn.execute("SELECT name FROM sqlite_master WHERE type = 'table'").fetchall()
-    lignes = conn.execute("SELECT nom FROM membres").fetchall()
+    membres = conn.execute("SELECT nom FROM membres").fetchall()
 
 st.header("Tables de la base")
 st.table([dict(table) for table in tables])
 st.header("Membres")
-st.table([dict(ligne) for ligne in lignes])
+st.table([dict(membre) for membre in membres])
 
 # Exemple : un formulaire qui ajoute un membre au groupe 1.
 with st.form("ajouter_membre", clear_on_submit=True):
