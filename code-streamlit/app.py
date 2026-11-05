@@ -7,8 +7,8 @@ RACINE = Path(__file__).parent.parent
 BASE = RACINE / "data.db"
 
 
-def connexion():
-    """Ouvre la base. Au premier lancement, elle est créée depuis base.sql."""
+def ouvrir_base():
+    """Ouvre la base et la crée au premier lancement. Inutile de modifier cette fonction."""
     neuve = not BASE.exists()
     conn = sqlite3.connect(BASE)
     conn.row_factory = sqlite3.Row
@@ -20,7 +20,7 @@ def connexion():
 
 st.title("Partage de frais")
 
-with connexion() as conn:
+with ouvrir_base() as conn:
     tables = conn.execute("SELECT name FROM sqlite_master WHERE type = 'table'").fetchall()
     lignes = conn.execute("SELECT nom FROM membres").fetchall()
 
@@ -28,5 +28,15 @@ st.header("Tables de la base")
 st.table([dict(table) for table in tables])
 st.header("Membres")
 st.table([dict(ligne) for ligne in lignes])
+
+# Exemple : un formulaire qui ajoute un membre au groupe 1.
+with st.form("ajouter_membre", clear_on_submit=True):
+    nom = st.text_input("Nom")
+    envoye = st.form_submit_button("Ajouter")
+
+if envoye and nom:
+    with ouvrir_base() as conn:
+        conn.execute("INSERT INTO membres (groupe_id, nom) VALUES (1, ?)", (nom,))
+    st.rerun()
 
 # Ajoutez la suite de votre application ici.
